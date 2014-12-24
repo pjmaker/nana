@@ -1,0 +1,57 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:575: checking host system type
+configure:596: checking target system type
+configure:614: checking build system type
+configure:650: checking for a BSD compatible install
+configure:703: checking whether build environment is sane
+configure:760: checking whether make sets ${MAKE}
+configure:806: checking for working aclocal
+configure:819: checking for working autoconf
+configure:832: checking for working automake
+configure:845: checking for working autoheader
+configure:858: checking for working makeinfo
+configure:905: checking I_DEFAULT_HANDLER
+configure:952: checking DI_MAKE_VALID_BREAKPOINT
+configure:978: checking DL_MAKE_VALID_BREAKPOINT
+configure:1006: checking ALWAYS_INCLUDE_MALLOC
+configure:1056: checking for gcc
+configure:1169: checking whether the C compiler (gcc  ) works
+configure:1185: gcc -o conftest    conftest.c  1>&5
+configure:1211: checking whether the C compiler (gcc  ) is a cross-compiler
+configure:1216: checking whether we are using GNU C
+configure:1225: gcc -E conftest.c
+configure:1244: checking whether gcc accepts -g
+configure:1280: checking for mawk
+configure:1280: checking for gawk
+configure:1310: checking how to run the C preprocessor
+configure:1331: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1394: checking for c++
+configure:1426: checking whether the C++ compiler (c++  ) works
+configure:1442: c++ -o conftest    conftest.C  1>&5
+configure:1468: checking whether the C++ compiler (c++  ) is a cross-compiler
+configure:1473: checking whether we are using GNU C++
+configure:1482: c++ -E conftest.C
+configure:1501: checking whether c++ accepts -g
+configure:1533: checking how to run the C++ preprocessor
+configure:1551: c++ -E  conftest.C >/dev/null 2>conftest.out
+configure:1587: checking for a BSD compatible install
+configure:1640: checking whether make sets ${MAKE}
+configure:1669: checking for ranlib
+configure:1699: checking for fmt
+configure:1748: checking for gtar
+configure:1784: checking for gfind
+configure:1820: checking for gdb
+configure:1853: checking for inline
+configure:1867: gcc -c -g -O2  conftest.c 1>&5
+configure:1893: checking for working const
+configure:1947: gcc -c -g -O2  conftest.c 1>&5
+configure:1973: checking for vsprintf
+configure:2001: gcc -o conftest -g -O2   conftest.c  1>&5
+configure:1985: warning: conflicting types for built-in function 'vsprintf'
+configure:1973: checking for vsnprintf
+configure:2001: gcc -o conftest -g -O2   conftest.c  1>&5
+configure:1985: warning: conflicting types for built-in function 'vsnprintf'
+configure:1973: checking for gettimeofday
+configure:2001: gcc -o conftest -g -O2   conftest.c  1>&5

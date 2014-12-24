@@ -1,0 +1,1328 @@
+This is Info file nana.info, produced by Makeinfo version 1.68 from the
+input file nana.texi.
+
+START-INFO-DIR-ENTRY
+* Nana: (nana).          The GNU Nana library (assertions, logging, forall,etc)
+END-INFO-DIR-ENTRY
+
+   This file documents the features and implementation of the GNU Nana
+library.
+
+   Copyright (C) 1996, 1997, 1998, 1999 P.J.Maker, Quoll Systems Pty
+Ltd.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+
+File: nana.info,  Node: Top,  Next: Introduction,  Prev: (dir),  Up: (dir)
+
+   This manual documents how to install and use the Nana library which
+provides improved support for assertion checking and logging in C and
+C++.
+
+* Menu:
+
+* Introduction::                Overview
+* Installation::                Installing nana
+* Invoking::                    Compiling, linking and generating gdb commands
+* Interface::                   Interface to nana library functions
+* Shortform::                   Nana shortform generation
+* Performance::
+* Tracing::
+* Usage::                       Some examples
+* FAQ::                         Frequently Asked Questions
+* Future::                      Future work/projects
+* Index::
+
+ -- The Detailed Node Listing --
+
+Introduction
+
+* Related work::
+* Assert::
+* Scope::
+
+Installing the Nana library
+
+* Required Software::
+* Optional Software ::
+* Configure::
+* Variables::
+* Supported Platforms::
+* Supported Debuggers::
+* Known Problems::
+* Bug Reports::
+* New Versions::
+
+Interface
+
+* nana.h::
+* WITHOUT_NANA::
+* I.h::
+* DI.h::
+* L.h::
+* L_buffer.h::
+* L_times.h::
+* DL.h::
+* GDB.h::
+* Q.h::
+* Qstl.h::
+* now.h::
+* cycles.h::
+* eiffel.h::
+* assert.h::
+* calls.h::
+
+cycles.h: access to CPU cycle counting registers.
+
+* RDTSC::
+
+eiffel.h: eiffel type assertions
+
+* EIFFEL_CHECK::
+* DOEND::
+* REQUIRE...::
+
+Tracing tools
+
+* Statement::
+* Library::
+
+Using Nana
+
+* Simplest::
+* Syslog::
+* GNU::
+* Embedded Systems::
+* Realtime::
+* A database::
+* Visualisation::
+
+
+File: nana.info,  Node: Introduction,  Next: Installation,  Prev: Top,  Up: Top
+
+Introduction
+************
+
+   Nana is a library that provides support for assertion checking and
+logging in a space and time efficient manner. The aim is to put common
+good practice(1) into a library that can be reused rather than writing
+this stuff every time you begin a new project.
+
+   In addition assertion checking and logging code can be implemented
+using a debugger rather than as inline code with a large saving in code
+space.
+
+   Nana aims to solve the following problems:
+
+  1. Avoid the two executables problem (one with asserts in and another
+     without any).
+
+     The code space and time costs of having assertion checking and
+     detailed logging code in a program can be high. Normally people
+     construct two versions of the program, one with checking code for
+     testing and one without checking code for production use.
+
+     With nana one version of the executable can be built for both
+     testing and release since debugger based checking has negligible
+     space and time impact.
+
+  2. Configurable: the nana library is designed to be reconfigured by
+     the user according to their needs. For example we can:
+        * Modify the behavior on assertion failure, e.g. to attempt a
+          system restart rather than just shutting down.
+
+        * Selectively enable and disable assertion checking and logging
+          both at compile and run time.
+
+        * Send the logging information off to various locations, e.g.
+             - Users terminal
+
+             - A file for later checking.
+
+             - Another process, e.g. a plotting program or a program
+               that verifies that the system is behaving itself.
+
+             - A circular buffer in memory.
+
+               This is an old embedded systems trick and is very useful
+               for production systems. The time cost of logging into
+               memory is not large and when your production system in
+               the field has problems you can then see what was
+               happening in the minutes before its unfortunate demise
+               rather than asking some user what was happening before
+               it died.
+
+  3. Time and space efficient.
+
+     For example the GNU `assert.h' implementation uses 53 bytes for
+     `assert(i>=0)' on a i386. The nana version using the i386 `stp'
+     instruction on assert fail uses 10 bytes. If you're willing to
+     accept the time penalty this can be reduced to 0 or 1 byte by
+     using debugger based assertions.
+
+  4. Support for formal methods.
+
+        * Before and after state (e.g. x,x' in the Z notation).
+
+          Specifications are often written in terms of the state of
+          variables before and after an operation. For example the
+          `isempty' operation on a stack should leave the stack
+          unchanged. To verify this in nana we could use:
+
+               bool isempty(){ /* true iff stack is empty */
+                 DS($s = s); /* copy s into $s in the debugger */
+                 ...; /* code to do the operation */
+                 DI($s == s); /* verify that s hasn't been changed */
+               }
+
+          These `$..' variables are called convenience variables and
+          are implemented by gdb. They have a global scope and are
+          dynamically typed and initialised automatically to 0.
+
+          In addition a C only version of before and after state is
+          provided.  For example:
+
+               bool isempty() { /* true iff stack is empty */
+                 ID(int olds); /* declare variable to hold old value */
+                 IS(olds = s); /* copy s into $s in the debugger */
+                 ...; /* code to do the operation */
+                 I(olds == s); /* verify that s hasn't been changed */
+               }
+
+        * Support for Predicate Calculus.
+
+          Nana provides some support for universal (forall) and
+          existential  (exists one or more) quantification. For example
+          to specify that the string v contains only lower case letters
+          we could use:
+
+                 I(A(char *p = v, *p != '\0', p++, islower(*p)));
+
+          These macros can be nested and used as normal boolean values
+          in control constructs as well as assertions. Unfortunately
+          they depend on the GNU CC statement value extensions and so
+          are not portable. The following macros are defined in `Q.h':
+
+         `A'
+               For all values the expression must be true.
+
+         `E'
+               There exists one or more values for which the expression
+               is true.
+
+         `E1'
+               There exists a single value for which the expression is
+               true.
+
+         `C'
+               Returns the number of times the expression is true.
+
+         `S'
+               Returns the sum of the expressions.
+
+         `P'
+               Returns the product of the expressions.
+
+        * A C/C++ based shortform generator similar to Eiffel which can
+          produce a HTML summary of your code.
+
+          The shortform of a program consists of the function headers
+          together with their preconditions(2) and postconditions(3)
+
+        * Performance measurement.
+
+          A small package which measures the time and space overhead of
+          code fragments is provided. This is used to analyse the
+          space/time requirements of the nana library and could be used
+          for other types of measurement.
+
+        * Verifying timing.
+
+          As well as using nana to verify timings with assertions using
+          a hardware supported timer you can also a simulator (e.g. the
+          PSIM power pc simulator by Cagney) with gdb. These simulators
+          can model time and provide a register called `$cycles' which
+          represents the current cycle count of the program. This can be
+          used to check that timing constraints are being meet.
+
+               void process_events() {
+                 for(;;){
+                   DS($start = $cycles);
+                   switch(get_event()){
+                     case TOO_HOT:
+                       ...;
+                       DI($cycles - $start <= 120);
+                       break;
+                     case TOO_COLD:
+                       ...;
+                       DI($cycles - $start <= 240);
+                       break;
+                   }
+                 }
+               }
+
+   The intended audience for Nana includes:
+
+   * Software Engineers.
+
+   * Formal methods community.
+
+   * Real time programmers.
+
+   * System testers.
+
+   * People teaching programming.
+
+* Menu:
+
+* Related work::
+* Assert::
+* Scope::
+
+   ---------- Footnotes ----------
+
+   (1) Which is unfortunately quite uncommon in the authors experience.
+
+   (2) Precondition: a boolean expression which must be true if the
+operation is to succeed. For example the `sort(int *v, int n)' might
+have have precondition that `v != NULL && n >= 0'.
+
+   (3) Postcondition: a boolean expression that must be true if the
+operation is correct (and the precondition was true on entry).
+
+
+File: nana.info,  Node: Related work,  Next: Assert,  Prev: Introduction,  Up: Introduction
+
+Related work
+============
+
+   The Nana project was inspired by some other projects, in particular:
+
+   * Anna - Anna stands for "Annotated Ada" where the programmer inserts
+     various assertions into the code which can be automatically
+     validated.  To quote from the WWW Virtual Library entry on Anna:
+
+          Anna is a language for formally specifying the intended
+          behaviour of Ada programs. It extends Ada with various
+          different kinds of specification constructs from ones as
+          simple as assertions, to as complex as algebraic
+          specifications. A tool set has been implemented at Stanford
+          for Anna, including:
+
+            1. standard DIANA extension packages, parsers,
+               pretty-printers;
+
+            2. a semantic checker;
+
+            3. a specification analyser;
+
+            4. an annotation transformer; and
+
+            5. a special debugger that allows program debugging based
+               on formal specifications
+
+          All tools have been developed in Ada and are therefore
+          extremely portable. Anna has thus been ported to many
+          platforms. For more information send e-mail to
+          "anna-request@anna.stanford.edu". Before down loading the
+          huge Anna release, you may wish to copy and read some Anna
+          LaTeX reports.
+
+
+     Anna is available from: `ftp://anna.stanford.edu/pub/anna'
+
+   * Eiffel - the Eiffel programming language provides support in the
+     language flexible assertion checking. To quote from the Eiffel
+     page in WWW Virtual library:
+
+          Eiffel is a pure object-oriented language featuring multiple
+          inheritance, polymorphism, static typing and dynamic binding,
+          genericity (constrained and unconstrained), a disciplined
+          exception mechanism, systematic use of assertions to promote
+          programming by contract, and deferred classes for high-level
+          design and analysis.
+
+   * APP - Annotation PreProcessor.  The APP was written by David S.
+     Rosenblum and provides assertion checking functions for C and C++.
+     It is implemented using a preprocessor wrapper around the C
+     preprocessor and supports quantifiers and before/after state.
+
+     See "A Practical Approach to Programming with Assertions" in Vol
+     21, No. 1, January 1995 of IEEE Transactions on Software
+     Engineering for an interesting paper describing APP. Unfortunately
+     the APP tool doesn't seem to be freely available (I'm willing to
+     be corrected on this).  Note that any similarity between my
+     examples and David's are due to morphic resonance.
+
+   * ADL - the Assertion Definition Language.
+
+     To quote from `http://www.sunlabs.com/research/adl/':
+
+          ADL (Assertion Definition Language) is a specification
+          language for programming interfaces. It can be used to
+          describe the programmer's interface to any C-callable
+          function, library or system call.
+
+          The Practical Specification Language.
+
+          ADL is the world's most practical specification language
+          because:
+
+             * Even partial specifications are useful
+
+             * Test programs can be automatically generated from ADL
+               specifications
+
+             * Specifications are external to the implementation of the
+               interface, so that they are vendor-independent.
+
+          An Automated Test Generator.
+
+          An ADL specification is not just a paper document. It can be
+          compiled by ADLT (the ADL translator). ADLT generates:
+
+             * Header files, that can be used in an implementation
+
+             * Test programs, that ensure that any implementation meets
+               the specification
+
+             * Natural-language documentation, derived directly from
+               the specification
+
+          ADLT can be used:
+
+          As a test generator, to create tests for existing software or
+          for existing standards As a development tool, to ensure that
+          documentation, software, and tests are aligned, and to enable
+          concurrent work on all three aspects of software production.
+
+   Nana is essentially a poor mans implementation of some of these ideas
+which works for C and C++. Ideally in the best of all possible worlds
+you might want to look at Eiffel or in the military world Ada and Anna.
+If you use TCL/TK you might also be interested in Jon Cook's `AsserTCL'
+package.
+
+
+File: nana.info,  Node: Assert,  Next: Scope,  Prev: Related work,  Up: Introduction
+
+Assert.h considered harmful
+===========================
+
+   Most C programmers become familiar with assertions from the the
+`assert.h' header. As such its a very good thing and has a nice simple
+implementation. However it is also inefficient and leads some people to
+the conclusion that assertion checking is an expensive luxury.
+
+   The implementation of `assert.h' as distributed with `gcc' looks
+like the following (after a bit of editing):
+
+     # ifndef NDEBUG
+     # define _assert(ex)	{if (!(ex)) \
+                              {(void)fprintf(stderr, \
+                                "Assertion failed: file \"%s\", line %d\n", \
+                                __FILE__, __LINE__);exit(1);}}
+     # define assert(ex)	_assert(ex)
+     # else
+     # define _assert(ex)
+     # define assert(ex)
+     # endif
+
+   There are are two main problems with this:
+
+  1. Code space overhead: each call to `assert' generates 2 function
+     calls with 4 and 1 arguments plus strings for error messages.  If
+     `assert.h' had library code support we could make the
+     implementation much more space efficient, e.g. by calling a single
+     function on error detection.
+
+  2. The default behaviour simply prints a message and dies, ideally
+     you like to be able to use a debugger to determine why the
+     assertion failed. Even if you run this under the debugger you
+     can't observe the failures of variables are an assert failure
+     because the process exits rather than aborting back to the
+     debugger.
+
+   Of course everyone merely rewrites their own `assert' macro so these
+are not significant objections. The only problem is if the author uses
+the libraries without modification.
+
+
+File: nana.info,  Node: Scope,  Prev: Assert,  Up: Introduction
+
+Scope of this document
+======================
+
+   This document aims to both describe the library and provide a
+tutorial in its use. Further work is required, particularly on the
+tutorial sections.  If anyone has any suggestions please send them to
+me.
+
+
+File: nana.info,  Node: Installation,  Next: Invoking,  Prev: Introduction,  Up: Top
+
+Installing the Nana library
+***************************
+
+   Nana uses the normal GNU install method in the same way as `gcc' and
+`gdb'. To install nana in the default location
+`/usr/local/{bin,lib,include}' you would use:
+
+     % gzcat nana-1.10.tar.gz | tar xvf -
+     % cd nana-1.10
+     % ./configure
+     % make
+     % make install
+     % make check
+     % make check-mail
+     % make subscribe
+
+   If you wish to produce space and time efficient code then replace
+the `./configure' with:
+
+     % I_DEFAULT=fast ./configure
+
+   If you are using a Pentium compatiable CPU which supports the
+`RDTSC' instruction you may wish to enable cycle level timing in
+`cycles.h' by using:
+
+     % ./configure --enable-rdtsc
+
+   The CHECK-MAIL and SUBSCRIBE targets both send e-mail. If you need
+to change the mailer used try something like:
+
+     % make MAILER=elm subscribe
+
+   *Note:* we need to install nana before running the `make check'
+target. The `check-mail' target sends the test report via e-mail to the
+`gnuware@cs.ntu.edu.au'.
+
+   Of course things are never that simple.  If you want to install Nana
+in a different location or change the behaviour on error detection see
+*Note Configure::.
+
+   Each of the sub-directories nana can be compiled and installed
+separately, e.g. if you don't need the documentation you can just
+compile and install from the `src' sub-directory after doing the
+configure statement.
+
+   Note that some of the subdirectories contain code that you may wish
+to install, improve or inspect. In particular:
+
+   * `emacs' - a protype emacs mode for browsing log files.
+
+   * `examples' - some small examples.
+
+   * `gdb' - some tools for use with gdb, in particular a statement
+        level trace utility and some gdb patches.
+
+   * `perf' - a tool for measuring space/time of code fragments.
+
+   * `shortform' - a shortform generator which produces a HTML summary
+     of your codes interface.
+
+   * `tcl' - a prototype TCL driver. We actually have a few more TCL
+     tools in the works so if you're interested contact the author.
+
+* Menu:
+
+* Required Software::
+* Optional Software ::
+* Configure::
+* Variables::
+* Supported Platforms::
+* Supported Debuggers::
+* Known Problems::
+* Bug Reports::
+* New Versions::
+
+
+File: nana.info,  Node: Required Software,  Next: Optional Software,  Prev: Installation,  Up: Installation
+
+Required Software
+=================
+
+   The following software is possibly required to run nana.
+
+`gcc-2.7.2'
+     Nana makes use of two GNU extensions in its library so you really
+     should be using `gcc'. Some of the code can be used with any C
+     compiler, though it may not be worth the bother. The dependencies
+     on gcc are in `Q.h' which uses the statement value extension and
+     in `L.h' which uses the variable number of arguments extension to
+     `cpp'.
+
+`gdb-4.16+'
+     A recent version of `gdb' is worthwhile, some early 4.?? versions
+     had problems setting a large number of breakpoints. Note that
+     `gdb-4.17' is available and has a few improvement which are useful
+     for some parts of this package including the tools in `gdb'.
+
+`gmake'
+     The `configure' script and `Makefiles' are generated using the
+     `automake' and `autoconf' programs. They should be reasonably
+     portable but if you have problems try using GNU make. For example
+     on some old DEC boxes we have had strange behaviour using the
+     system make.
+
+   For a listing of porting results including software versions see:
+
+          `http://www.cs.ntu.edu.au/homepages/pjm/nana-bug/'
+
+
+File: nana.info,  Node: Optional Software,  Next: Configure,  Prev: Required Software,  Up: Installation
+
+Optional Software
+=================
+
+   In addition to the required software you might also be interested in:
+
+   * `http://www.cs.tu-bs.de/softech/ddd/' - a smart frontend for gdb
+     which can display dynamic data structures such as linked lists,
+     etc.
+
+   * `ftp://ftp.ci.com.au/pub/psim/' - a cycle level simulator for the
+     PowerPC. A fine piece of work.
+
+
+File: nana.info,  Node: Configure,  Next: Variables,  Prev: Optional Software,  Up: Installation
+
+Configure
+=========
+
+   Nana uses a standard GNU `autoconf' generated `configure' script.
+The `configure' script checks the setup on your machine and then
+generates the appropriate Makefiles. Some of the things checked by
+configure include:
+
+  1. Which compiler, compiler flags and libraries to use, e.g. you
+     might need to include a `-lposix' flag to the linker to build
+     programs on your machine.
+
+  2. Which header (.h) files are available on this machine, e.g. is
+     `unistd.h' available on this machine.
+
+  3. Where to install programs, header file, man pages, etc.
+
+   In addition `configure' uses the host architecture and operating
+system to generate the `nana-config.h' file. This file contains some
+macro definitions which define how nana works on particular operating
+systems and hardware architectures.
+
+   For example on `i386' machines we would use the `asm("hlt")'
+instruction whenever an assertion fails, on a `sparc' we would use
+`asm("unimp")'. Otherwise we would default to a plain C call to
+`abort()' If `configure' does not recognise your machine it uses plain
+C code.
+
+   You may wish to change these defaults on installation, one method is
+to edit a local copy of the `nana-config.h' file. Alternately you can
+define the code yourself in the call to `configure'. For example to
+redefine the action we take when an error is detected by the `I' macro
+we can use:
+
+     I_DEFAULT_HANDLER="restart_system()" ./configure
+
+   As well as simple calls to routines various other bits of information
+are passed off to the `I_DEFAULT_HANDLER' such as the expression that
+failure and a failure code. For example:
+
+     % I_DEFAULT_HANDLER="restart(line,file,param)" ./configure
+
+   The default for `I_DEFAULT_HANDLER' calls a function which prints a
+message and then dumps core.  Different behaviour on failure can be
+organised by setting the `I_DEFAULT' to `fast', i.e. plain core dump or
+`verbose' which prints an error messsage and then does the core dump.
+
+     % I_DEFAULT=fast ./configure
+
+   For nana the following examples may be useful:
+
+  1. `./configure'
+
+     Accept the default values for everything. In particular the files
+     will be installed in:
+
+                  `/usr/local/{bin,include,lib,man,info}'
+
+  2. `./configure --prefix=~project/tools'
+
+     Install the files into:
+
+                `~project/tools/{bin,include,lib,man,info}'
+
+  3. `./configure --bindir=~project/bin --libdir=~/project/lib \
+     --includedir=~/project/headers --infodir=/usr/local/info \
+     --mandir=~/project/doc'
+
+     The install directory for program (`bin'), etc can all be set with
+     command line arguments to `configure'.
+
+  4. `CC=xacc LIBS=-lposix ./configure sun3'
+
+     If the defaults chosen by `configure' are not correct you can
+     override them by setting variables such as `CC' before calling
+     `configure'. The `sun3' argument is used to identify the machine
+     we are running on and may be necessary on some machines.
+
+  5. `./configure --help'
+
+     And of course when in doubt ask for help.
+
+   For even more details see the file `INSTALL.con' which contains the
+generic instructions for use with `autoconf' generated `configure'
+scripts.
+
+
+File: nana.info,  Node: Variables,  Next: Supported Platforms,  Prev: Configure,  Up: Installation
+
+Variables for ./configure
+=========================
+
+   The configure program uses the following shell variables to change
+various defaults.  Another method is simply to edit the `nana-config.h'
+file. Most of these values should be auto detected, so you can ignore
+this section until your need to save a few bytes of store by using
+`asm("hlt")' instead of a call to `abort()'.
+
+`DI_MAKE_VALID_BREAKPOINT'
+     This text is inserted when the `DI.h' library needs to set a
+     breakpoint in the generated code. It should ideally update all
+     variables which being kept in registers etc so that gdb gets the
+     correct values for each variable.
+
+     Possible values include:
+
+       1. `asm("nop")' - a single `nop' instruction to set the
+          breakpoint at.
+
+          This is the default.
+
+       2. `_vi = 0' - where `_vi' is a global volatile int.
+
+       3. `_vi = (exprn)' - where EXPRN is the expression we are
+          checking for this assertion.
+
+       4. `/* nothing */' - nothing at all, this means the breakpoint
+          will be set at the start of the next statement which works
+          most of the time. However for some examples this will do the
+          wrong thing.
+
+`DL_MAKE_VALID_BREAKPOINT'
+     Used for the same purpose as `DI_MAKE_VALID_BREAKPOINT' for
+     `DL.h'. It also defaults to `asm("nop")'.
+
+`I_DEFAULT_HANDLER'
+     The code called when `I.h' detects an error.
+    `asm("hlt")'
+          Some machines use a `hlt' instruction.
+
+    `asm("unimp")'
+          And other machines use a `unimp' instruction.
+
+    `abort()'
+          Or we could use a call to `abort' which is at least standard
+          C. On some machines this is significantly larger than a
+          single `hlt' instruction.
+
+    `restart()'
+          Or a call to a function which attempts to restart the system.
+
+`ALWAYS_INCLUDE_MALLOC'
+     This is a dodgey for some versions of Linux which don't seem to
+     include `malloc' when you include `stdio.h' and use `print'. This
+     causes problems for `gdb' since it uses `malloc' in the executable
+     to implement parts of its functionality.
+
+     This kludge should be removed!
+
+`GDB'
+     This is the pathname of the version of GDB you wish to use.  For
+     example on my FreeBSD box we have gdb-4.16 installed in `/usr/bin'
+     and gdb-4.17 in `/usr/local/bin/' to optimise confusion. If you
+     wish nana to use 4.17 try something like:
+
+          GDB=/usr/local/bin/gdb ./configure
+
+
+File: nana.info,  Node: Supported Platforms,  Next: Supported Debuggers,  Prev: Variables,  Up: Installation
+
+Supported Platforms
+===================
+
+   Nana has been tested on the following platforms:
+
+  1. i386-unknown-linux, gcc-2.7.0, gdb-4.16
+
+  2. sparc-sun-sunos4.1.4, gcc-2.7.2.f.1, gdb-4.16
+
+  3. sparc-sun-solaris2.3, gcc-2.7.2, gdb-4.16
+
+  4. alpha-dec-osf3.2, gcc-2.7.2, gdb-4.16
+
+  5. mips-sgi-irix5.3, gcc-2.7.0, gdb-4.16
+
+  6. powerpc-ibm-aix3.2.5, gcc-2.6.3, gdb-4.16
+
+   The `alpha-dec-osf3.2', `mips-sgi-irix5.3' and
+`powerpc-ibm-aix3.2.5' implementations have problems when you compile
+with `-O2' or `-O3' optimisation. This causes some errors in the the
+debugger based assertion and logging code since variables can be
+removed or changed by optimisation. At `-O' everything passes.
+Regardless of optimisation the C based checking code passes all tests
+on these platforms.
+
+   If you use nana on a new platform please send the report file to me
+via the `make check-mail' command. A machine generated list of this
+information is available at:
+
+           `http://www.cs.ntu.edu.au/homepages/gnuware/nana'
+
+   (Warning this page is out of date and may be fixed shortly)
+
+
+File: nana.info,  Node: Supported Debuggers,  Next: Known Problems,  Prev: Supported Platforms,  Up: Installation
+
+Supported Debuggers
+===================
+
+   Currently Nana works with the GNU GDB debugger which is available on
+a wide range of platforms including embedded systems and even provides
+support for remote debugging.  Porting to any reasonable debugger with
+conditional breakpoints and commands is not very difficult.
+
+   As an example of an unreasonable debugger, Nana has been ported to
+work with the Microsoft CodeView debugger. The port is small (60 lines
+of code) but suffers from a problem with variable scoping in CodeView.
+If a breakpoint is set at a point in the code the expressions are not
+evaluated from that particular scope. For example setting a breakpoint
+in the function `f' cannot access a variable local to `f' directly.
+CodeView has a unique (expletive deleted) scope operator which you must
+use to set the scope `{...}'.  This makes the interface somewhat less
+than beautiful.
+
+   Another good thing about CodeView is to try a debug command which
+prints a message which contains a single open `{'. This of course
+causes it to hang and was the main problem during the porting to
+CodeView which took a whole day.(1)
+
+   If anyone is interested I may release the CodeView implementation,
+please contact me if you are interested. Of course a better bet is
+probably to move to the `gdbserver' system. I think `gdb' has been
+released as a native even for some Microsoft operating systems.
+
+   Other debuggers like DBX don't seem to be worth the trouble since gdb
+works on those machines. A redesign of the nana internals may also be
+useful if we decide portability between debuggers is actually useful.
+
+   ---------- Footnotes ----------
+
+   (1) And about 60 reset cycles where the machine went off into
+hyperspace.
+
+
+File: nana.info,  Node: Known Problems,  Next: Bug Reports,  Prev: Supported Debuggers,  Up: Installation
+
+Known Problems
+==============
+
+   Nana has the following known features (or perhaps problems):
+
+  1. Nana macros which use the debugger such as `DI' or `DL' should be
+     on lines by themselves. If you mix code and nana macros on the
+     same line you will get errors, e.g:
+
+          main(){
+             int x;
+             x = 5; x--; DI(x == 4);
+          }
+
+     This doesn't work since breakpoints are set at line boundaries
+     rather than statement ones. Of course anyone who writes code like
+     this deserves whatever happens to them.
+
+  2. Optimisation can remove variables so that debugger based
+     assertions (`DI.h') do not work correctly. As usual the
+     interaction between the debugger and the compiler is rather
+     complicated. This may not be a problem if the appropriate
+     compile-time flags are selected, e.g. `-O0 and -O1' work on most
+     platforms.
+
+  3. The `Q.h' macros depend on the statement value extension to GNU CC
+     so if you wish to use them you must use GCC. This can be fixed for
+     C++ in a possibly useful manner, I can't see any solution for C.
+
+  4. The logging macros depend on the Var Args extension provided by the
+     GNU C Preprocessor.(1) We could (probably will) implement a fix
+     for this based on the tricks in the C FAQ. Unfortunately these
+     tricks are not pretty.  For now interested users could simply
+     replace their CPP with the GNU CPP if they wished to stay with
+     non-standard compilers.
+
+  5. The `Q.h' macros do not work in the debugger since `gdb' does
+     support the statement expression extension.
+
+  6. Multiline expressions do not work as expected in the debugger since
+     you need to use a blackslash as an escape at the end of the line.
+     For example:
+
+          	 DI(x +
+                      10 > 30);
+     A few backslashes may solve this particular problem.
+
+  7. Problems with the `configure' script.
+
+     The `configure' script automatically detects the target operating
+     system and architecture and then generates `nana-config.h'. If the
+     options selected in `nana-config.h' are incorrect they can be
+     edited by hand and installed in the usual include directory. The
+     easiest method is simply to delete all macros in `nana-config.h'
+     since the system defaults to more portable (and less efficient)
+     implementations. If you wish to do this from the configure script
+     you can try giving a unsupported machine type, e.g.
+
+          % ./configure pdp11-dec-ultrix
+
+  8. Some users have reported problems with the `configure' script
+     detecting `vsnprintf'. If `configure' doesn't find it and it does
+     exist then simply define it in `nana-config.h' as per the previous
+     question.
+
+     If `vsnprintf' really doesn't exist then get a new C library,
+     possibly the GNU libc.
+
+  9. The use of `vsprintf' opens a security hole since no bounds
+     checking is done by it. Nana attempts to use `vsnprintf' which is
+     safe when it exists but it will resort to `vsprintf' if it can't
+     find `vsnprintf'. All careful people should make sure that they
+     have a library with `vsnprintf'.
+
+ 10. `Qstl.h' doesn't work since the STL library has not   been
+     installed along with C++. This can of course be fixed by installing
+      STL. See:
+
+                            `http://www.stl.org'
+
+ 11. `STL' header file errors due to nana.
+
+     The C++ `STL' header files for version 3.0 at least must be
+     included before the `Q.h' file.
+
+     The problem is caused by the STL files using `S' as a template
+     argument. Of course `Q.h' uses `S' for summing a series. As usual
+     namespace pollution strikes again.
+
+     (Thanks to Han Holl for this particular problem).
+
+ 12. If you try to use the debugger based macros such as `DI.h' or
+     `DL.h' on code that has not been compiled with `-g' then misery
+     follows.
+
+     (Thanks to Eugen Dedu for this one)
+
+   ---------- Footnotes ----------
+
+   (1) This allows a variable number of arguments to C preprocessor
+macros.
+
+
+File: nana.info,  Node: Bug Reports,  Next: New Versions,  Prev: Known Problems,  Up: Installation
+
+Bug Reports
+===========
+
+   If you think you have found a bug in the Nana library, please
+investigate it and report it.
+
+   * Please make sure that the bug is really in the Nana library.
+
+   * You have to send us a test case that makes it possible for us to
+     reproduce the bug.
+
+   * You also have to explain what is wrong; if you get a crash, or if
+     the results printed are not good and in that case, in what way.
+     Make sure that the bug report includes all information you would
+     need to fix this kind of bug for someone else.
+
+   If your bug report is good, we will do our best to help you to get a
+corrected version of the library; if the bug report is poor, we won't do
+anything about it (apart from asking you to send better bug reports).
+
+   Send your bug report to:
+
+                       `nana-bug@cs.ntu.edu.au'
+
+   Copies of bug reports will be kept at:
+
+          `http://www.cs.ntu.edu.au/homepages/pjm/nana-bug/'
+
+
+File: nana.info,  Node: New Versions,  Prev: Bug Reports,  Up: Installation
+
+New Versions
+============
+
+   New versions of nana will be made available at:
+
+                  `ftp://ftp.cs.ntu.edu.au/pub/nana/'
+
+   If you wish to be informed about new releases of nana then subscribe
+to the nana mailing list.  Send a message containing `subscribe' <your
+e-mail address> to:
+
+                 `mailto:nana-request@it.ntu.edu.au'.
+
+   A hypermail archive of this list is kept at:
+
+           `http://www.cs.ntu.edu.au/hypermail/nana-archive'
+
+   If you wish to send a message to the list send it to
+`mailto:nana@it.ntu.edu.au'.
+
+
+File: nana.info,  Node: Invoking,  Next: Interface,  Prev: Installation,  Up: Top
+
+Invoking Nana
+*************
+
+   The functions defined by Nana are implemented either as pure C code
+or as a set of commands which are generated for the debugger.  To use
+the C based support for assertion checking you would use something like:
+
+     #include <nana.h> /* this file includes the other nana .h files */
+     
+     int floor_sqrt(int i) { /* returns floor(sqrt(i) */
+       int answer;
+       I(i >= 0); /* assert(i >= 0) if i -ve then exit */
+       ...; /* code to calculate sqrt(i) */
+       L("floor_sqrt(%d) == %d\n",
+             i, answer);  /* logs a printf style message */
+     }
+
+   To compile and link the previous code you may need to use the
+`-Ipath' or `-lnana' flags with the compiler. For example:
+
+     % gcc toy.c -lnana
+
+   If the nana headers have been installed in a strange location you may
+need to do something like:
+
+     % gcc -I<strange location>/include toy.c -L<strange location>/lib -lnana
+
+   The next example uses the debugger versions of `L' and `I'.  If the
+code is run under the debugger these checks will occur, otherwise they
+take up a negligible amount of space and time.
+
+     #include <nana.h> /* this includes the other nana .h files */
+     
+     int floor_sqrt(int i){
+       int answer;
+       DI(i >= 0); /* assert(i >= 0) if i -ve then exit */
+       ...; /* code to calculate sqrt(i) */
+       DL("floor_sqrt(%d) == %d\n", i, answer);  /* logs a printf style message */
+     }
+
+   To generate the debugger commands from the C source we just run the
+`nana' filter over the program and then execute the commands under gdb
+using the `source' command. You also need to compile the program with
+the `-g' option so the debugger works. So something like:
+
+     % gcc -g sqrt.c
+     % nana sqrt.c >sqrt.gdb
+     % gdb a.out
+     (gdb) source sqrt.gdb
+     breakpoint insert: ...
+     (gdb) run
+     ...
+     (gdb) quit
+
+   Note that any C preprocessor flags which you use must be passed off
+to the `nana' command. The best way to do this of course is in a
+Makefile. Something like the following works for GNU Make:
+
+     %.nana: %.c
+             nana $(CFLAGS) $< >$@
+
+   The `nana' filter can also be run over multiple source files in a
+single run if thats more convenient.
+
+   For convenience a number of other simple scripts are provided, in
+particular to:
+
+`nana-run'
+     Run a program under the debugger without prompting, etc.  For
+     example:
+
+          % nana-run a.out -x main.gdb
+          output from program
+
+`nana-clg'
+     Compiles the program, generates the debugger commands and the runs
+     the program using `nana-run'. For example:
+
+          % nana-clg -O3 main.c
+          output from program
+
+     You can change the compiler invoked by `nana-clg' by redefining
+     the `NANACC' environment variable. For example:
+
+          % NANACC=g++ nana-clg -O3 main.cc
+
+     The installation also `nana-c++lg' which compiles your code using
+     a GNU C++ compiler.
+
+`nana-trace'
+     Generates a line by line trace of the execution of a program using
+     GDB. For example:
+
+          % nana-trace a.out
+          54           printf("main()\n");
+          55           x = distance(5,-5);
+          distance (i=5, j=-5) at test.c:47
+          47           i = -i;
+          48           j = -j;
+          ...
+
+     The arguments to `nana-trace' are passed directly to GDB. If you
+     wish display variables or call procedures on each line then could
+     use something like:
+
+          % nana-trace -x mycommands.gdb a.out
+
+     Where the `mycommands.gdb' contains the GDB commands such as
+     `display x' which causes `x' to be printed every time the debugger
+     gets control of the program.
+
+
+File: nana.info,  Node: Interface,  Next: Shortform,  Prev: Invoking,  Up: Top
+
+Interface
+*********
+
+   This section describes the details of the interface to nana library.
+
+   All of the files can be included multiple times without ill-effect
+since they use the C preprocessor to make sure the header declarations
+are only seen the first by the compiler.  Each of the files can also be
+included individually.
+
+* Menu:
+
+* nana.h::
+* WITHOUT_NANA::
+* I.h::
+* DI.h::
+* L.h::
+* L_buffer.h::
+* L_times.h::
+* DL.h::
+* GDB.h::
+* Q.h::
+* Qstl.h::
+* now.h::
+* cycles.h::
+* eiffel.h::
+* assert.h::
+* calls.h::
+
+   If any of the following routines have an internal problem (e.g.
+malloc fails due to lack of memory) they will call the `nana_error'
+function defined in `nana_error.c'. By default this function prints a
+message and dumps core using `abort'. If you wish to override this
+behaviour you should define your own handler before linking in the nana
+library.
+
+
+File: nana.info,  Node: nana.h,  Next: WITHOUT_NANA,  Prev: Interface,  Up: Interface
+
+nana.h: the main header file
+============================
+
+   The `nana.h' file includes most of the other files in the library.
+In particular it `#include's' the following files:
+
+`I.h'
+
+`DI.h'
+
+`L.h'
+
+`DL.h'
+
+`Q.h'
+
+`GDB.h'
+
+File: nana.info,  Node: WITHOUT_NANA,  Next: I.h,  Prev: nana.h,  Up: Interface
+
+WITHOUT_NANA: disabling all nana code for portability.
+======================================================
+
+   If you wish to disable all nana code you can `#define' the
+`WITHOUT_NANA' macro. This selects versions of the macros defined in
+`I.h',`L.h', etc which map to `/* empty */'.
+
+   So if you are using nana for your development but don't wish to
+force  your customers to use it you can add an option to your
+`configure' script to define/undefine `WITHOUT_NANA'.  In addition you
+will need to distribute copies of the nana header files with your
+package to get the stubs.
+
+   Note that the `L.h' and `DL.h' macros use the macro variable number
+of arguments extension provided by GNU C. If you wish your code to be
+portable you should use the macros `VL((..))', etc rather than `L(..)'
+to avoid problems with non GNU C preprocessors which only take a fixed
+number of arguments.
+
+
+File: nana.info,  Node: I.h,  Next: DI.h,  Prev: WITHOUT_NANA,  Up: Interface
+
+I.h: C based invariant checking
+===============================
+
+   This implements the C based invariant checking code and is a
+replacement for `assert.h'. The first two macros are the normal user
+interface; the remainder are used for configuring the behaviour on
+failure, etc.
+
+ - Macro: void I (bool EXPRN)
+     The EXPRN should always be true if the program is correct.  If the
+     EXPRN is false a message will be printed, followed by core dump.(1)
+
+     Checking can be enabled and disabled by using the I_LEVEL and
+     I_DEFAULT_GUARD macros. See the definitions below for these macros
+     for further details.
+
+     Note that EXPRN should have no side-effects(2) since disabling
+     checking shouldn't change your programs behaviour.
+
+            I(z != 0);
+            x = y / z;
+
+ - Macro: void N (bool EXPRN)
+     The opposite of `I', i.e. the expression must never ever be true if
+     the program is working properly. It is equivelant to `I(!(e))' and
+     exists as a piece of syntactic sugar which may be helpful for
+     complicated boolean expressions.
+
+          char* strdup(char *s) {
+            N(s == NULL);
+            ...;
+          }
+
+ - Macro: int I_LEVEL
+     The `I_LEVEL' macro is used to globally enable and disable
+     checking by the macros in this file. It can take on one of three
+     values:
+
+    `0'
+          Disable all checking. Regardless of anything else no code
+          will be generated for `I', `N', etc.
+
+    `1'
+          Enable checking only if the corresponding guard condition is
+          true. The guard condition can be used to enable and disable
+          checking at compile and run time.
+
+    `2'
+          Enable all checking regardless of guard conditions.
+
+     `I_LEVEL' defaults to `1'.
+
+ - Macro: bool I_DEFAULT_GUARD
+     The `I_DEFAULT_GUARD' is used to selectively enable or disable
+     checking at compile or run time.
+
+     `I_DEFAULT_GUARD' defaults to `TRUE', i.e. always enabled.
+
+     A user would typically define `I_DEFAULT_GUARD' to be global or
+     local variable which is used to turn checking on or off at
+     run-time. For example:
+
+          #define I_DEFAULT_GUARD i_guard > 0
+          
+          extern int i_guard;
+
+ - Macro: text I_DEFAULT_PARAMS
+     This is passed off to the `I_DEFAULT_HANDLER' and defaults to
+     nothing, it is just some text and is intended to pass failure codes
+     (e.g. `IEH303') or requests (e.g. `HW_DEAD') information off to
+     the handler.
+
+     `I_DEFAULT_PARAMS' defaults to nothing.
+
+ - Macro: void I_DEFAULT_HANDLER (char *EXPRN, char *FILE, int LINE,
+          PARAM)
+     When an error is detected the `I_DEFAULT_HANDLER' will be called to
+     handle the error. The arguments are:
+
+    `exprn'
+          A string representation of the expression that has failed,
+          e.g. `"I(i>=0)"'.
+
+    `file'
+          The file that this error occurred in, i.e. `__FILE__'.
+
+    `line'
+          The line number for the error, i.e. `__LINE__'.
+
+    `param'
+          An optional parameter which can be passed across which
+          defaults to `I_DEFAULT_PARAMS'. This can be used to pass
+          failure codes or other information from the checking code to
+          the handler.
+
+   All of the remaining macros are used to individually override the
+default values defined above. Normally these macros would be used in a
+system wide header file to define macros appropriate for the
+application. For example you might use `IH' to define different
+checking macros for hardware and software faults.
+
+ - Macro: void I (bool E)
+ - Macro: void IG (bool E, bool G)
+ - Macro: void IH (bool E, Macro H)
+ - Macro: void IP (bool E, Text P)
+ - Macro: void IGH (bool E, bool G, Macro H)
+ - Macro: void IGP (bool E, bool G, Text P)
+ - Macro: void IHP (bool E, Macro H, Text P)
+ - Macro: void IGHP (bool E, bool G, Macro H, Text P)
+ - Macro: void N (bool E)
+ - Macro: void NG (bool E, bool G)
+ - Macro: void NH (bool E, Macro H)
+ - Macro: void NP (bool E, Text P)
+ - Macro: void NGH (bool E, bool G, Macro H)
+ - Macro: void NGP (bool E, bool G, Text P)
+ - Macro: void NHP (bool E, Macro H, Text P)
+ - Macro: void NGHP (bool E, bool G, Macro H, Text P)
+
+   We also provide support for referring to previous values of
+variables in postconditions. The `ID' macro is used to create variables
+to save the old state in. The `IS' and `ISG' macros are to set these
+values.
+
+ - Macro: void ID (Text DECLN)
+ - Macro: void IS (Text ASSIGNMENT)
+ - Macro: void ISG (Text DECLN, bool G)
+
+   For example:
+     void ex(int &r) {
+       ID(int oldr = r); /* save parameter */
+       g(r);
+       I(oldr == r); /* check r is unchanged */
+       while(more()) {
+         IS(oldr = r); /* assign r to oldr */
+         h(r);
+         I(oldr == r * r);
+       }
+     }
+
+   ---------- Footnotes ----------
+
+   (1) If you don't want a core dump then look at stopping the core
+dumps with `ulimit' rather than changing the handler.
+
+   (2) Side-effects include such operations as input/output or
+assignments, e.g. `x++'.
+

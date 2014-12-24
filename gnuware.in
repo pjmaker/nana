@@ -1,0 +1,127 @@
+#! /bin/sh
+#
+# gnuware.in - sends off a test result to the gnuware address.
+# 
+# Copyright (c) 1998 Phil Maker <pjm@gnu.org>
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+#
+# $Id: gnuware.in,v 1.1.1.1 1999/09/12 03:26:48 pjm Exp $
+#
+
+case $#
+in 
+    0)
+	MAILER=cat
+	DEST=-
+	;;
+    2)
+	MAILER=$1
+	DEST=$2
+	;;
+    *)
+        echo usage $0 "[mailer dest]"
+	exit 1
+	;;
+esac
+
+## Generate the report to send off
+(
+echo "* summary"
+echo "package ::= @PACKAGE@"
+echo "version ::= @VERSION@"
+echo "host ::= @host@"
+echo "target ::= @target@"
+echo "build ::= @build@"
+
+# valid values for test/check.sum are:
+echo "result ::= `cat test/check.sum`"
+
+echo "" 
+echo "* administration information"
+echo "date ::= `date`"
+echo "user ::= `whoami`@`uname -n`"
+
+echo ""
+echo "* other generic configuration variables"
+echo "host_cpu ::= @host_cpu@"
+echo "host_vendor ::= @host_vendor@"
+echo "host_os ::= @host_os@"
+echo "target_cpu ::= @target_cpu@"
+echo "target_vendor ::= @target_vendor@"
+echo "target_os ::= @target_os@"
+echo "build_cpu ::= @build_cpu@"
+echo "build_vendor ::= @build_vendor@"
+echo "build_os ::= @build_os@"
+echo "CFLAGS ::= @CFLAGS@"
+echo "CPPFLAGS ::= @CPPFLAGS@"
+echo "CXXFLAGS ::= @CXXFLAGS@"
+echo "LDFLAGS ::= @LDFLAGS@"
+echo "LIBS ::= @LIBS@"
+echo "DEFS ::= @DEFS@"
+echo "CC ::= @CC@"
+echo "CXX ::= @CXX@"
+
+echo ""
+echo "* package specific configuration variables"
+echo "I_DEFAULT_HANDLER ::= @I_DEFAULT_HANDLER@"
+echo "DI_MAKE_VALID_BREAKPOINT ::= @DI_MAKE_VALID_BREAKPOINT@"
+echo "DL_MAKE_VALID_BREAKPOINT ::= @DL_MAKE_VALID_BREAKPOINT@"
+
+echo ""
+echo "* version numbers of related tools"
+echo "gdb-version ::= `@GDB@ --version | head -1`"
+echo "cc-version ::= `@CC@ --version | head -1`"
+echo "cxx-version ::= `@CXX@ --version | head -1`"
+
+echo ""
+echo "* summary of the failures"
+(
+ grep "^Fail" test/check.log 
+ grep "^Passed 0" test/check.log
+) | 
+grep -v "Failed 7 failures, 10 successes selftest.c" |
+@AWK@ '
+{ 
+  if(NF == 8) {
+     failed[$6 $8]++ 
+  } else {
+     failed[$6]++
+  }
+}
+
+END { 
+  for(i in failed) { 
+    s = s " " i 
+  }
+  
+  if(s != "") {
+    print "* Detailed test results"
+    system("cat test/check.log")
+  }
+
+  print "nana-failed ::= " s 
+}
+'
+) | $MAILER $DEST
+

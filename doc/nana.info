@@ -1,0 +1,80 @@
+This is Info file nana.info, produced by Makeinfo version 1.68 from the
+input file nana.texi.
+
+START-INFO-DIR-ENTRY
+* Nana: (nana).          The GNU Nana library (assertions, logging, forall,etc)
+END-INFO-DIR-ENTRY
+
+   This file documents the features and implementation of the GNU Nana
+library.
+
+   Copyright (C) 1996, 1997, 1998, 1999 P.J.Maker, Quoll Systems Pty
+Ltd.
+
+   Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+
+
+Indirect:
+nana.info-1: 538
+nana.info-2: 45777
+nana.info-3: 93004
+
+Tag Table:
+(Indirect)
+Node: Top538
+Node: Introduction2039
+Node: Related work9183
+Node: Assert13757
+Node: Scope15541
+Node: Installation15862
+Node: Required Software18192
+Node: Optional Software19498
+Node: Configure19975
+Node: Variables23269
+Node: Supported Platforms25833
+Node: Supported Debuggers27024
+Node: Known Problems28871
+Node: Bug Reports33011
+Node: New Versions34058
+Node: Invoking34687
+Node: Interface38440
+Node: nana.h39398
+Node: WITHOUT_NANA39713
+Node: I.h40682
+Node: DI.h45777
+Node: L.h51038
+Node: L_buffer.h54007
+Node: L_times.h58670
+Node: DL.h60333
+Node: GDB.h63218
+Node: Q.h64833
+Node: Qstl.h69347
+Node: now.h72141
+Node: cycles.h73335
+Node: RDTSC75773
+Node: eiffel.h76433
+Node: EIFFEL_CHECK76852
+Node: DOEND77884
+Node: REQUIRE...79146
+Node: assert.h81089
+Node: calls.h81702
+Node: Shortform84697
+Node: Performance88721
+Node: Tracing90690
+Node: Statement91116
+Node: Library93004
+Node: Usage97496
+Node: Simplest97934
+Node: Syslog98641
+Node: GNU100747
+Node: Embedded Systems101726
+Node: Realtime102388
+Node: A database102731
+Node: Visualisation102946
+Node: FAQ103397
+Node: Future104427
+Node: Index106394
+
+End Tag Table

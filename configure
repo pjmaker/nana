@@ -4932,6 +4932,9 @@ fi
 
 
 
+# nana checking code
+
+
 # default code to call when a I(..)  failure occurs
 #
 #  The I_DEFAULT variable is used to select between
@@ -5108,7 +5111,7 @@ fi
 done
 
 
-ac_config_files="$ac_config_files Makefile doc/Makefile examples/Makefile man/Makefile src/Makefile test/Makefile gdb/Makefile emacs/Makefile perf/Makefile src/nana-config.h src/nana src/nana-run src/nana-clg gdb/nana-trace gdb/nana-libtrace src/nana-c++lg shortform/Makefile shortform/nana-sfg shortform/nana-sfdir gnuware test/gammon"
+ac_config_files="$ac_config_files Makefile doc/Makefile examples/Makefile man/Makefile src/Makefile test/Makefile gdb/Makefile emacs/Makefile perf/Makefile src/nana-config.h src/nana src/nana-run src/nana-clg gdb/nana-trace gdb/nana-libtrace src/nana-c++lg shortform/Makefile shortform/nana-sfg shortform/nana-sfdir test/gammon"
 
 
 ac_config_commands="$ac_config_commands default"
@@ -5879,7 +5882,6 @@ do
     "shortform/Makefile") CONFIG_FILES="$CONFIG_FILES shortform/Makefile" ;;
     "shortform/nana-sfg") CONFIG_FILES="$CONFIG_FILES shortform/nana-sfg" ;;
     "shortform/nana-sfdir") CONFIG_FILES="$CONFIG_FILES shortform/nana-sfdir" ;;
-    "gnuware") CONFIG_FILES="$CONFIG_FILES gnuware" ;;
     "test/gammon") CONFIG_FILES="$CONFIG_FILES test/gammon" ;;
     "default") CONFIG_COMMANDS="$CONFIG_COMMANDS default" ;;
 

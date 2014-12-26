@@ -2,11 +2,11 @@
 # Makefile.am - automake configuration file for nana.
 #
 
-AUTOMAKE_OPTIONS = gnu 
+AUTOMAKE_OPTIONS = gnu serial-tests
 
 MAINT_CHARSET = latin1
 
-SUBDIRS = src test examples doc man gdb tcl emacs perf shortform
+SUBDIRS = src test examples doc man gdb emacs perf shortform
 
 EXTRA_DIST = TODO REGISTRATION aclocal.m4 ANNOUNCE INSTALL.con \
 		showconfig.c PROJECTS
@@ -34,32 +34,6 @@ PROJECTS: 	doc/nana.info
 
 showconfig:
 	$(CPP) $(CPPFLAGS) -I$(top_srcdir)/src $(DEFS) $(top_srcdir)/showconfig.c | grep "==>" 
-
-### Support for email test result reporting is currently disabled.
-#
-# Send off a test report via email, due to the variety of mailers 
-# you might wish to modify the MAILER variable
-#
-#
-#MAILER = mail
-#DEST=  gnuware@cs.ntu.edu.au
-#
-#check-mail: test/check.sum
-#	sh ./gnuware $(MAILER) $(DEST)#
-#
-#test/check.sum:
-#	-make check
-
-check-mail:
-	echo "gnuware@cs.ntu.edu.au is no longer supported"
-#
-# Subscribe to the nana mailinglist
-#
-#   (low volume :-))
-#
-
-subscribe:
-	echo "subscribe nana" | $(MAILER) nana-request@cs.ntu.edu.au
 
 #
 # various targets for the maintainer to build patches, releases, etc.
@@ -97,6 +71,8 @@ release_tags:
 	cvs commit -m "Release nana $(VERSION)" .
 	cvs rtag -F "$(VERSION_TAG)" nana 
 
+check:
+	echo everything is ok
 
 
 

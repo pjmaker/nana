@@ -10,6 +10,6 @@ EXTRA_DIST = ott.h install.ex I.ex D.ex syslog.c
 #main_LDADD = -L$(srcdir)/src -lnana 
 #syslog_LD_ADD = -L$(srcdir)/src -lnana 
 
-INCLUDES = -I$(srcdir)/src
+# INCLUDES = -I$(srcdir)/src
 
 

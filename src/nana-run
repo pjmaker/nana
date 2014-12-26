@@ -45,7 +45,7 @@ pkgdata=${prefix}/share/nana
 case $1 
 in
     --version)
-	  echo "nana-run (GNU nana) 2.5"
+	  echo "nana-run (GNU nana) 3.0"
 	  echo "Copyright (C) 1997,1998 Phil Maker"
 	  echo "Nana comes with NO WARRANTY, to the extent permitted by law."
 	  echo "You may redistribute copies of nana without charge."

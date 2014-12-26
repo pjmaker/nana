@@ -2,7 +2,7 @@
 # a short makefile
 #
 
-CLEANFILES = $(wildcard *~)
+CLEANFILES = *~
 
 EXTRA_DIST = nana.1 nana-clg.1 I.3 DI.3 L.3 DL.3 Q.3 Qstl.3 nana.3
 

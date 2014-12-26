@@ -25,40 +25,35 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# Id: configure.in,v 1.9 1998/07/08 10:56:11 pjm Exp 
-#
 
-AC_INIT(src/nana.h)
+AC_INIT([nana],[3.0])
+AC_CONFIG_SRCDIR([src/nana.h])
 
-AC_CANONICAL_SYSTEM
+AC_CANONICAL_TARGET
 
 PREV_VERSION=2.4
-AM_INIT_AUTOMAKE(nana, 2.5)
+AM_INIT_AUTOMAKE
 AC_SUBST(PREV_VERSION)
 
-##
-# 
-# The nana_DEFINE macro is to use to generate the default values
-# for various architecture/os specific macros which are then used 
-# by nana. These default values are based on the canonical
-# system name ($target), e.g. i386-unknown-freesd2.2.2
-#
-# For example if the new m0086 has a assembler instruction 
-# called hcf (halt+catch fire) which we want to use for assert
-# failures since it is efficient (1 byte) we would
-# add an extra rule to I_DEFAULT_HANDLER.
-#
-#   m0086-*-*) 
-#	I_DEFAULT_HANDLER='asm("hcf")'
-#	;;
-# 
-# If no default is selected here, a mostly standard C one will be
-# selected by the header files.
-#
-# Note: a few more values from different machine types would be
-#    useful. Submissions encouraged!
-#
-##
+AC_ARG_ENABLE(rdtsc,--enable-rdtsc 		  use pentium rdtsc cycle timing,HAVE_RDTSC=1,HAVE_RDTSC=0)
+AC_SUBST(HAVE_RDTSC)
+
+AC_PROG_CC
+AC_PROG_AWK
+AC_PROG_CPP
+AC_PROG_CXX
+AC_PROG_CXXCPP
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+AC_CHECK_PROG(FMT, fmt, fmt, cat)
+AC_ARG_PROGRAM 
+AC_PATH_PROG(TAR,gtar,tar)
+AC_PATH_PROG(FIND,gfind,find)
+AC_PATH_PROG(GDB,gdb)
+AC_C_INLINE
+AC_C_CONST
+
 
 # default code to call when a I(..)  failure occurs
 #
@@ -66,7 +61,7 @@ AC_SUBST(PREV_VERSION)
 #  fast which does a core dump ASAP versus verbose
 #  which prints a nice message before core dumping.
 
-nana_DEFINE(I_DEFAULT_HANDLER,(exprn,file,line,param),
+nana_DEFINE([I_DEFAULT_HANDLER],(exprn,file,line,param),
 [ 
   case "$I_DEFAULT" in
   fast)
@@ -135,7 +130,6 @@ nana_DEFINE(ALWAYS_INCLUDE_MALLOC, /* no arguments */,
 ])
 
 
-
 # support for cycle level counting for various machines
 #
 # Note: autodiscovery is a bit dubious for these things since they
@@ -145,27 +139,15 @@ nana_DEFINE(ALWAYS_INCLUDE_MALLOC, /* no arguments */,
 AC_ARG_ENABLE(rdtsc,--enable-rdtsc 		  use pentium rdtsc cycle timing,HAVE_RDTSC=1,HAVE_RDTSC=0)
 AC_SUBST(HAVE_RDTSC)
 
-AC_PROG_CC
-AC_PROG_AWK
-AC_PROG_CPP
-AC_PROG_CXX
-AC_PROG_CXXCPP
-AC_PROG_INSTALL
-AC_PROG_MAKE_SET
-AC_PROG_RANLIB
-AC_CHECK_PROG(FMT, fmt, fmt, cat)
-AC_ARG_PROGRAM 
-AC_PATH_PROG(TAR,gtar,tar)
-AC_PATH_PROG(FIND,gfind,find)
-AC_PATH_PROG(GDB,gdb)
-AC_C_INLINE
-AC_C_CONST
-
-
 
 AC_CHECK_FUNCS(vsprintf vsnprintf gettimeofday)
 
-AC_OUTPUT([Makefile doc/Makefile examples/Makefile man/Makefile src/Makefile test/Makefile gdb/Makefile tcl/Makefile emacs/Makefile perf/Makefile src/nana-config.h src/nana src/nana-run src/nana-clg gdb/nana-trace gdb/nana-libtrace src/nana-c++lg shortform/Makefile shortform/nana-sfg shortform/nana-sfdir gnuware test/gammon], [chmod +x src/nana src/nana-clg src/nana-c++lg src/nana-run test/gammon gnuware])
+AC_CONFIG_FILES([Makefile doc/Makefile examples/Makefile man/Makefile src/Makefile test/Makefile gdb/Makefile emacs/Makefile perf/Makefile src/nana-config.h src/nana src/nana-run src/nana-clg gdb/nana-trace gdb/nana-libtrace src/nana-c++lg shortform/Makefile shortform/nana-sfg shortform/nana-sfdir gnuware test/gammon])
+
+AC_CONFIG_COMMANDS([default],[chmod +x src/nana src/nana-clg src/nana-c++lg src/nana-run test/gammon gnuware],[])
+
+AC_OUTPUT
 
 echo "* Displaying configure variables for C code"
 make showconfig
+

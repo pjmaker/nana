@@ -45,6 +45,7 @@ extern "C" {
 
 #ifndef _nana_config_h_
 #include <nana-config.h>
+#include <stdlib.h>
 #endif
 
 /* 

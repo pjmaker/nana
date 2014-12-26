@@ -39,7 +39,7 @@
 case $1 
 in
     --version)
-	  echo "nana-c++lg (GNU nana) 2.5"
+	  echo "nana-c++lg (GNU nana) 3.0"
 	  echo "Copyright (C) 1997 Phil Maker"
 	  echo "Nana comes with NO WARRANTY, to the extent permitted by law."
 	  echo "You may redistribute copies of nana without charge."
@@ -65,6 +65,6 @@ in
 esac
 
 
-NANACC=c++ ${NANABIN-${exec_prefix}/bin}/nana-clg $*
+NANACC=g++ ${NANABIN-${exec_prefix}/bin}/nana-clg $*
 
 

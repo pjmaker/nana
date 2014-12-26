@@ -29,6 +29,7 @@
  */
 
 #include <nana_error.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 void nana_error(const char *message) {

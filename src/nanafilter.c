@@ -33,6 +33,7 @@
 static const char rcs[] ="Id: nanafilter.c,v 1.2 1998/06/10 06:58:55 pjm Exp ";
 
 #include <stdio.h>
+#include <stdlib.h>
 
 void do_input(void);
 void do_string(void);

@@ -52,7 +52,7 @@ exec_prefix=${prefix}
 case $1 
 in
     --version)
-	  echo "nana-clg (GNU nana) 2.5"
+	  echo "nana-clg (GNU nana) 3.0"
 	  echo "Copyright (C) 1997 Phil Maker"
 	  echo "Nana comes with NO WARRANTY, to the extent permitted by law."
 	  echo "You may redistribute copies of nana without charge."

@@ -142,7 +142,7 @@ AC_SUBST(HAVE_RDTSC)
 
 AC_CHECK_FUNCS(vsprintf vsnprintf gettimeofday)
 
-AC_CONFIG_FILES([Makefile doc/Makefile examples/Makefile man/Makefile src/Makefile test/Makefile gdb/Makefile emacs/Makefile perf/Makefile src/nana-config.h src/nana src/nana-run src/nana-clg gdb/nana-trace gdb/nana-libtrace src/nana-c++lg shortform/Makefile shortform/nana-sfg shortform/nana-sfdir gnuware test/gammon])
+AC_CONFIG_FILES([Makefile doc/Makefile examples/Makefile man/Makefile src/Makefile test/Makefile gdb/Makefile emacs/Makefile perf/Makefile src/nana-config.h src/nana src/nana-run src/nana-clg gdb/nana-trace gdb/nana-libtrace src/nana-c++lg shortform/Makefile shortform/nana-sfg shortform/nana-sfdir test/gammon])
 
 AC_CONFIG_COMMANDS([default],[chmod +x src/nana src/nana-clg src/nana-c++lg src/nana-run test/gammon gnuware],[])
 

@@ -30,8 +30,6 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $Id: bogomips.c,v 1.1.1.1 1999/09/12 03:26:49 pjm Exp $
  */
 
 #include <stdio.h>
@@ -40,15 +38,10 @@
 
 /*
  * delay - used for the delay loop.
- *
- * Note: a careful programmer would declare i volatile to prevent the 
- *    loop being optimised away, unfortunately this also prevents
- *    i from being kept in a register and so upsets the result. Oh well
- *    these are bogus mips anyway...
  */
 
 inline void delay(long l) {
-  long i;
+  volatile register long i;
 
   for(i = l; i >= 0; i--) 
     ;

@@ -1,5 +1,5 @@
 #
-# configure.in - used by autoconf to generate the configure script.
+# configure.ac - used by autoconf to generate the configure script.
 #
 # Copyright (c) 1997 Phil Maker
 # All rights reserved.
@@ -55,13 +55,32 @@ AC_C_INLINE
 AC_C_CONST
 
 
+# nana checking code
+AC_DEFUN(nana_DEFINE,[
+AC_MSG_CHECKING([$1])
+if test -z "$$1"
+then # use code to work out the value
+  $3
+# else its been defined by the user
+fi
+
+if test -z "$$1"
+then 
+  AC_MSG_RESULT("default")
+else 
+  AC_MSG_RESULT($$1)
+  $1="#define $1$2 $$1"
+fi
+AC_SUBST($1)
+])
+
 # default code to call when a I(..)  failure occurs
 #
 #  The I_DEFAULT variable is used to select between 
 #  fast which does a core dump ASAP versus verbose
 #  which prints a nice message before core dumping.
 
-nana_DEFINE([I_DEFAULT_HANDLER],(exprn,file,line,param),
+nana_DEFINE(I_DEFAULT_HANDLER,(exprn,file,line,param),
 [ 
   case "$I_DEFAULT" in
   fast)

@@ -1,19 +1,13 @@
 #! /bin/sh
 #
-# nana-run.in - run a program under the debugger and filter out the useless
-#	messages. The filtering should actually be done in the gdb program
-#	but -quiet etc don't seem to turn of all messages. Perhaps add
-#	set print-off/on commands to gdb.
+# nana-run.in - run a program under the GDB debugger and filter out the useless
+#	messages. 
 #
 # usage:
 #
 #	% nana-run a.out -x main.gdb
 #
-#
-#       NANARUN_GDB_OPTIONS - environment variable containing arguments to 
-#         pass off to gdb.
-#
-# Copyright (c) 1997 Phil Maker
+# Copyright (c) 2014 Phil Maker
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,7 +31,6 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# Id: nana-run.in,v 1.2 1998/07/03 03:25:31 pjm Exp 
 
 prefix=@prefix@
 pkgdata=@datadir@/@PACKAGE@
@@ -45,8 +38,8 @@ pkgdata=@datadir@/@PACKAGE@
 case $1 
 in
     --version)
-	  echo "nana-run (GNU @PACKAGE@) @VERSION@"
-	  echo "Copyright (C) 1997,1998 Phil Maker"
+	  echo "nana-run @VERSION@"
+	  echo "Copyright (C) 2014 Phil Maker"
 	  echo "Nana comes with NO WARRANTY, to the extent permitted by law."
 	  echo "You may redistribute copies of nana without charge."
 	  echo "See the file COPYING for more details."
@@ -57,12 +50,6 @@ in
 	  echo ""
 	  echo "Runs a program under gdb(1) without any user interaction."
 	  echo ""
-	  echo "See also:"
-	  echo "  <ftp://ftp.cs.ntu.edu.au/pub/nana>"
-	  echo "  <http://www.cs.ntu.edu.au/homepages/pjm/nana-home>"
-	  echo ""
-	  echo "Report suggestions to majordomo list - nana@it.ntu.edu.au"  
-	  echo "Report bugs to nana-bug@it.ntu.edu.au"
 	  exit 0 
 	  ;;
 esac

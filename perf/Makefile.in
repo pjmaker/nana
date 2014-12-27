@@ -435,7 +435,7 @@ bogomips bogomips.mtex: bogomips.c
 	cat bogomips.mtex
 
 uname.mtex:
-	uname -m -s -r >uname.mtex
+	uname -m -s -r | sed -e 's/_/\\\_/g' >uname.mtex
 	cat uname.mtex
 
 summary.mtex: summary.tst measure.sh

@@ -67,7 +67,7 @@ in
 	  ;;
 esac
 
-@GDB@ ${NANARUN_GDB_OPTIONS} -batch -x ${NANAPKGDIR-pkgdata}/nana-run-init.gdb $* -x ${NANAPKGDIR-pkgdata}/nana-run.gdb
+@GDB@ ${NANARUN_GDB_OPTIONS} -batch -x ${pkgdata}/nana-run-init.gdb $* -x ${pkgdata}/nana-run.gdb
 
 
 

@@ -30,5 +30,5 @@
 
 
    fclose(log);
-   system("rm log.dat");
+   unlink("log.dat");
 }

@@ -24,11 +24,10 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- * $Id: prelude.c,v 1.1.1.1 1999/09/12 03:26:49 pjm Exp $
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #define L_DEFAULT_PARAMS stdout
 #define DL_DEFAULT_PARAMS stdout
@@ -91,6 +90,7 @@ void __BSD_assert(char *f, int n, char *e) {
 #if HAVE_CYCLES
 volatile long long cycles_t;
 #include "../src/cycles.h"
+#endif
 
 
 /**** End of code for tests ****/

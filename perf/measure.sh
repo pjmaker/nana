@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # measure.sh - measure the performance of some single line code fragments
 #   in space/time using a variety of compile time options.
@@ -33,29 +33,29 @@
 while read code
 do
     (cat prelude.c 
-    echo "#ifndef NT"
-    echo "#define NT 1024"
-    echo "#endif"
-    echo "  printf(STR($code) \"\\n\");" 
-    echo "  if(false) {"
-    echo "  s:" 
-    echo "  asm(\"scode:\");"
-    echo $code
-    echo "  asm(\"ecode:\");"
-    echo "  t:;"
-    echo "  }"
-    echo "  printf(\"%ld\\n\", &&t - &&s);"
-    echo "  s = now();"
-    echo "  for(n = 0; n != NT; n++) {"
-    echo "    C256($code);"
-    echo "  }"
-    echo "  e = now();"
-    echo "  te = ((e - s) * 1.0e9)/(NT * 256.0);"
-    echo "  if(te < 1000.0) {"
-    echo "    printf(\"%.0lfns\\n\", te);"
-    echo "  } else {"
-    echo "    printf(\"%.1lfus\\n\", te/1000.0);"
-    echo "  }"
+    echo  "#ifndef NT"
+    echo  "#define NT 1024"
+    echo  "#endif"
+    echo  "  printf(STR($code) \"\\n\");" 
+    echo  "  if(false) {"
+    echo  "  s:" 
+    echo  "  asm(\"scode:\");"
+    echo  $code
+    echo  "  asm(\"ecode:\");"
+    echo  "  t:;"
+    echo  "  }"
+    echo  "  printf(\"%ld\\n\", &&t - &&s);"
+    echo  "  s = now();"
+    echo  "  for(n = 0; n != NT; n++) {"
+    echo  "    C256($code);"
+    echo  "  }"
+    echo  "  e = now();"
+    echo  "  te = ((e - s) * 1.0e9)/(NT * 256.0);"
+    echo  "  if(te < 1000.0) {"
+    echo  "    printf(\"%.0lfns\\n\", te);"
+    echo  "  } else {"
+    echo  "    printf(\"%.1lfus\\n\", te/1000.0);"
+    echo  "  }"
 
     cat postlude.c
     ) >tmp.c

@@ -6406,7 +6406,7 @@ $as_echo X"$file" |
   done
 }
  ;;
-    "default":C) chmod +x src/nana src/nana-clg src/nana-c++lg src/nana-run test/gammon gnuware ;;
+    "default":C) chmod +x src/nana src/nana-clg src/nana-c++lg src/nana-run test/gammon ;;
 
   esac
 done # for ac_tag

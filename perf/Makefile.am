@@ -18,7 +18,7 @@ all:
 
 perf:	bogomips.mtex uname.mtex summary.mtex dcache.mtex others
 	rm -f code.tex
-	latex perf.tex
+	pdflatex perf.tex
 	latex2html -init_file init.l2h perf.tex
 
 bogomips bogomips.mtex: bogomips.c

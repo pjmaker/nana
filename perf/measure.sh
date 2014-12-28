@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # measure.sh - measure the performance of some single line code fragments
 #   in space/time using a variety of compile time options.
@@ -27,38 +27,39 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# $Id: measure.sh,v 1.1.1.1 1999/09/12 03:26:49 pjm Exp $
-#
 
-while read code
+
+# the read -r hack is to avoid \n being expand to n
+while read -r code
 do
     (cat prelude.c 
-    echo  "#ifndef NT"
-    echo  "#define NT 1024"
-    echo  "#endif"
-    echo  "  printf(STR($code) \"\\n\");" 
-    echo  "  if(false) {"
-    echo  "  s:" 
-    echo  "  asm(\"scode:\");"
-    echo  $code
-    echo  "  asm(\"ecode:\");"
-    echo  "  t:;"
-    echo  "  }"
-    echo  "  printf(\"%ld\\n\", &&t - &&s);"
-    echo  "  s = now();"
-    echo  "  for(n = 0; n != NT; n++) {"
-    echo  "    C256($code);"
-    echo  "  }"
-    echo  "  e = now();"
-    echo  "  te = ((e - s) * 1.0e9)/(NT * 256.0);"
-    echo  "  if(te < 1000.0) {"
-    echo  "    printf(\"%.0lfns\\n\", te);"
-    echo  "  } else {"
-    echo  "    printf(\"%.1lfus\\n\", te/1000.0);"
-    echo  "  }"
+    /bin/echo -E    "#ifndef NT"
+    /bin/echo -E    "#define NT 1024"
+    /bin/echo -E    "#endif"
+    /bin/echo -E  "  printf(STR($code) \"\\n\");" 
+    /bin/echo -E    "  if(false) {"
+    /bin/echo -E    "  s:" 
+    /bin/echo -E    "  asm(\"scode:\");"
+    /bin/echo  -E  "$code /*codelet*/"
+    /bin/echo -E    "  asm(\"ecode:\");"
+    /bin/echo -E    "  t:;"
+    /bin/echo -E    "  }"
+    /bin/echo -E    "  printf(\"%ld\\n\", &&t - &&s);"
+    /bin/echo -E    "  s = now();"
+    /bin/echo -E    "  for(n = 0; n != NT; n++) {"
+    /bin/echo -E    "    C256($code);"
+    /bin/echo -E    "  }"
+    /bin/echo -E    "  e = now();"
+    /bin/echo -E    "  te = ((e - s) * 1.0e9)/(NT * 256.0);"
+    /bin/echo -E    "  if(te < 1000.0) {"
+    /bin/echo -E    "    printf(\"%.0lfns\\n\", te);"
+    /bin/echo -E    "  } else {"
+    /bin/echo -E    "    printf(\"%.1lfus\\n\", te/1000.0);"
+    /bin/echo -E    "  }"
 
     cat postlude.c
     ) >tmp.c
+    grep codelet tmp.c >/dev/tty
 
     for args in $*
     do
@@ -67,25 +68,25 @@ do
 	    ../src/nana -I. -I../src tmp.c >nana.gdb
 	    ../src/nana-run ./a.out -x nana.gdb | grep -v "^Breakpoint" |
 	      grep -v "^Program" | grep -v "^helloworld" | grep -v "^\$"
-            echo $args
+            /bin/echo -E   $args
 	    gcc -fno-defer-pop -g $args -I. -I../src -S tmp.c
 	    (
-	    echo "\\item \\verb@$code@ with \verb@gcc -g $args@ produces:\\par"
-	    echo "\\begin{verbatim}"
+	    /bin/echo -E   "\\item \\verb@$code@ with \verb@gcc -g $args@ produces:\\par"
+	    /bin/echo -E   "\\begin{verbatim}"
 	    awk '/scode:/,/ecode:/' tmp.s | 
 	     awk ' { x[NR] = $0 } 
                    END { for(i = 3; i < NR -2; i++) print x[i]; }' | 
 		  expand
 	      
-	    echo "\\end{verbatim}"
-	    echo "\\par"
+	    /bin/echo -E   "\\end{verbatim}"
+	    /bin/echo -E   "\\par"
 	    ) >> code.mtex
 
 	else
-	    echo "compile error: giving up"
+	    /bin/echo -E   "compile error: giving up"
 	    exit 1
 	fi
-	echo
+	/bin/echo -E  
     done
 done |
 awk '

@@ -20,7 +20,7 @@
 #
 #       % NANABIN=/usr/local/bin nana-clg main.cc
 #
-# Copyright (c) 1997, 1998, 1999 Phil Maker <pjm@gnu.org>
+# Copyright (c) 1997, 1998, 1999, 2014 Phil Maker <pjm@gnu.org>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,6 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# Id: nana-clg.in,v 1.2 1998/02/27 08:43:42 pjm Exp 
 
 prefix=/usr/local
 exec_prefix=${prefix}
@@ -52,7 +51,7 @@ exec_prefix=${prefix}
 case $1 
 in
     --version)
-	  echo "nana-clg (GNU nana) 3.0"
+	  echo "nana-clg 3.0"
 	  echo "Copyright (C) 1997 Phil Maker"
 	  echo "Nana comes with NO WARRANTY, to the extent permitted by law."
 	  echo "You may redistribute copies of nana without charge."
@@ -67,13 +66,6 @@ in
 	  echo "  and finally runs your program under gdb"
 	  echo "  This script is intended for the quick testing"
 	  echo "  of small programs."
-	  echo ""
-	  echo "See also:"
-	  echo "  <ftp://ftp.cs.ntu.edu.au/pub/nana>"
-	  echo "  <http://www.cs.ntu.edu.au/homepages/pjm/nana-home>"
-	  echo ""
-	  echo "Report suggestions to majordomo list - nana@it.ntu.edu.au"  
-	  echo "Report bugs to nana-bug@it.ntu.edu.au"
 	  exit 0 
 	  ;;
 esac

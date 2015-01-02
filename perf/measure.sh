@@ -36,15 +36,20 @@ do
     /bin/echo -E    "#ifndef NT"
     /bin/echo -E    "#define NT 1024"
     /bin/echo -E    "#endif"
-    /bin/echo -E  "  printf(STR($code) \"\\n\");" 
+    /bin/echo -E    "  printf(STR($code) \"\\n\");" 
+    /bin/echo -E    "  if(false) goto s; /* avoid optimising labels away */"
+    /bin/echo -E    "  if(false) goto t; /* avoid optimising labels away */"
     /bin/echo -E    "  if(false) {"
     /bin/echo -E    "  s:" 
-    /bin/echo -E    "  asm(\"scode:\");"
+# warning: gcc optimises printf to puts if its a string
+    /bin/echo -E    "  __asm volatile (\"scode:\");"
     /bin/echo  -E  "$code /*codelet*/"
-    /bin/echo -E    "  asm(\"ecode:\");"
+    /bin/echo -E    "  __asm volatile (\"ecode:\");"
     /bin/echo -E    "  t:;"
     /bin/echo -E    "  }"
-    /bin/echo -E    "  printf(\"%ld\\n\", &&t - &&s);"
+#    /bin/echo -E    "  printf(\"s=%pb\\n\", &&s);"
+#    /bin/echo -E    "  printf(\"t=%pb\\n\", &&t);"
+    /bin/echo -E    "  printf(\"%ldb\\n\", &&t - &&s);"
     /bin/echo -E    "  s = now();"
     /bin/echo -E    "  for(n = 0; n != NT; n++) {"
     /bin/echo -E    "    C256($code);"
@@ -52,9 +57,9 @@ do
     /bin/echo -E    "  e = now();"
     /bin/echo -E    "  te = ((e - s) * 1.0e9)/(NT * 256.0);"
     /bin/echo -E    "  if(te < 1000.0) {"
-    /bin/echo -E    "    printf(\"%.0lfns\\n\", te);"
+    /bin/echo -E    "    printf(\"%.2lfns\\n\", te);"
     /bin/echo -E    "  } else {"
-    /bin/echo -E    "    printf(\"%.1lfus\\n\", te/1000.0);"
+    /bin/echo -E    "    printf(\"%.2lfus\\n\", te/1000.0);"
     /bin/echo -E    "  }"
 
     cat postlude.c
@@ -70,6 +75,7 @@ do
 	      grep -v "^Program" | grep -v "^helloworld" | grep -v "^\$"
             /bin/echo -E   $args
 	    gcc -fno-defer-pop -g $args -I. -I../src -S tmp.c
+	    # size a.out >/dev/tty
 	    (
 	    /bin/echo -E   "\\item \\verb@$code@ with \verb@gcc -g $args@ produces:\\par"
 	    /bin/echo -E   "\\begin{verbatim}"

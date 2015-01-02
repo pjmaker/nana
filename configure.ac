@@ -85,7 +85,7 @@ nana_DEFINE(I_DEFAULT_HANDLER,(exprn,file,line,param),
   case "$I_DEFAULT" in
   fast)
     case "$target" in
-    i?86-*-*)
+    i?86-*-*|x86_64-*-*)
       I_DEFAULT_HANDLER='asm("hlt")'
       ;;
     sparc-*-*)
@@ -114,7 +114,7 @@ nana_DEFINE(I_DEFAULT_HANDLER,(exprn,file,line,param),
 nana_DEFINE(DI_MAKE_VALID_BREAKPOINT,(exprn),
 [ 
   case "$target" in
-  sparc-*-*|i?86-*-*)
+  sparc-*-*|i?86-*-*|x86_64-*-*)	
     DI_MAKE_VALID_BREAKPOINT='asm("nop")'
     ;;
   esac
@@ -124,7 +124,7 @@ nana_DEFINE(DI_MAKE_VALID_BREAKPOINT,(exprn),
 nana_DEFINE(DL_MAKE_VALID_BREAKPOINT,(),
 [ 
   case "$target" in
-  sparc-*-*|i?86-*-*)
+  sparc-*-*|i?86-*-*|x86_64-*-*)
     DL_MAKE_VALID_BREAKPOINT='asm("nop")'
     ;;
   esac

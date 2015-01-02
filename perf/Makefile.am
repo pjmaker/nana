@@ -22,7 +22,7 @@ perf:	bogomips.mtex uname.mtex summary.mtex dcache.mtex others
 	latex2html -init_file init.l2h perf.tex
 
 bogomips bogomips.mtex: bogomips.c
-	gcc -O3 -I$(top_srcdir)/src -L$(top_srcdir)/src bogomips.c -lnana -o bogomips
+	gcc -I$(top_srcdir)/src -L$(top_srcdir)/src bogomips.c -lnana -o bogomips
 	./bogomips >bogomips.mtex
 	cat bogomips.mtex
 
@@ -31,17 +31,18 @@ uname.mtex:
 	cat uname.mtex
 
 summary.mtex: summary.tst measure.sh
-	./measure.sh -O <summary.tst >summary.mtex
+	./measure.sh -Os <summary.tst >summary.mtex
 
 dcache.mtex: dcache.tst measure.sh
-	./measure.sh "-DNT=16" <dcache.tst >dcache.mtex
+	./measure.sh -Os <dcache.tst >dcache.mtex
 
 others:
 	rm -f code.tex
 	for f in nop c_ops assert quantifiers log ; \
 	do \
 	   echo "Testing: $$f" ; \
-	   ./measure.sh -O0 -O1 -O3 <$$f.tst >$$f.mtex ; \
+	   # note -O2/-O3 are problematic code size < 0 due to movement; \
+	   ./measure.sh -O0 -Os <$$f.tst >$$f.mtex ; \
         done
 
 

@@ -1,6 +1,6 @@
 \input texinfo  @c -*-texinfo-*-
 @include version.texi
-@settitle GNU Nana: improved support for assertions and logging in C and C++
+@settitle Nana: improved support for assertions and logging in C and C++
 @setfilename nana.info
 @c send all the index entries to the concept index
 @syncodeindex fn cp
@@ -17,7 +17,7 @@
 @ifinfo
 @format
 START-INFO-DIR-ENTRY
-* Nana: (nana).          The GNU Nana library (assertions, logging, forall,etc)
+* Nana: (nana).          The Nana library (assertions, logging, forall,etc)
 END-INFO-DIR-ENTRY
 @end format
 @end ifinfo
@@ -49,7 +49,7 @@ notice identical to this one except for the removal of this paragraph
 @setchapternewpage odd
 
 @titlepage
-@title GNU Nana
+@title Nana
 @subtitle Improved support for assertions and logging in C and C++
 @subtitle last updated @value{UPDATED} for version @value{VERSION}
 @author P.J.Maker (pjm@@gnu.org)
@@ -204,7 +204,7 @@ asking some user what was happening before it died.
 
 @item Time and space efficient.
 
-For example the GNU @samp{assert.h} implementation uses 53 bytes for 
+For example the obvious @samp{assert.h} implementation uses 53 bytes for 
 @samp{assert(i>=0)} on a i386. The nana version using the i386 @samp{stp}
 instruction on assert fail uses 10 bytes. If you're willing to accept the
 time penalty this can be reduced to 0 or 1 byte by using debugger based
